@@ -1,0 +1,50 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-md-6">
+            <div class="card glass-card border-0">
+                <div class="card-header bg-primary text-white text-center py-3">
+                    <h4 class="mb-0">Book Appointment</h4>
+                </div>
+                
+                <div class="card-body p-4">
+                    <!-- Doctor Summary -->
+                    <div class="d-flex align-items-center mb-4 p-3 bg-light rounded">
+                        <div class="bg-white rounded-circle d-flex align-items-center justify-content-center shadow-sm me-3" style="width: 50px; height: 50px; font-size: 24px;">👨‍⚕️</div>
+                        <div>
+                            <h5 class="fw-bold mb-0">Dr. {{ doctor.name }}</h5>
+                            <small class="text-muted">{{ doctor.doctor_profile.department }} | Fee: ₹{{ doctor.doctor_profile.fee }}</small>
+                        </div>
+                    </div>
+
+                    <!-- Booking Form -->
+                    <form action="{{ url_for('book_appointment', doc_id=doctor.id) }}" method="POST">
+                        
+                        <div class="mb-3">
+                            <label class="form-label fw-bold small text-muted">SELECT DATE</label>
+                            <input type="date" name="date" class="form-control" required>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label fw-bold small text-muted">SELECT TIME</label>
+                            <input type="time" name="time" class="form-control" required>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label fw-bold small text-muted">SYMPTOMS (OPTIONAL)</label>
+                            <textarea name="symptoms" class="form-control" rows="3" placeholder="Briefly describe your problem..."></textarea>
+                        </div>
+
+                        <div class="d-grid mt-4">
+                            <button type="submit" class="btn btn-gradient text-white">Confirm Booking</button>
+                            <a href="{{ url_for('patient_dashboard') }}" class="btn btn-link text-muted mt-2">Cancel</a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

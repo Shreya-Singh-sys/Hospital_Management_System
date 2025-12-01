@@ -1,0 +1,214 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container py-4">
+    
+    <!-- Doctor Header -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card glass-card border-0 p-4 text-white" style="background: linear-gradient(to right, #11998e, #38ef7d);">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <h2 class="fw-bold mb-0">Dr. {{ current_user.name }}</h2>
+                        <span class="badge bg-white text-success rounded-pill mt-2">{{ current_user.doctor_profile.department }} Specialist</span>
+                    </div>
+                    <div class="bg-white text-success rounded-circle d-flex align-items-center justify-content-center shadow" style="width: 60px; height: 60px; font-size: 30px;">
+                        👨‍⚕️
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- MAIN TABS -->
+    <ul class="nav nav-pills mb-4" id="pills-tab" role="tablist">
+        <li class="nav-item">
+            <button class="nav-link active" id="pills-home-tab" data-bs-toggle="pill" data-bs-target="#pills-home" type="button">📅 Appointments</button>
+        </li>
+        <li class="nav-item">
+            <button class="nav-link" id="pills-patients-tab" data-bs-toggle="pill" data-bs-target="#pills-patients" type="button">👥 My Patients</button>
+        </li>
+        <li class="nav-item">
+            <button class="nav-link" id="pills-avail-tab" data-bs-toggle="pill" data-bs-target="#pills-avail" type="button">🕒 Availability (Next 7 Days)</button>
+        </li>
+    </ul>
+
+    <div class="tab-content" id="pills-tabContent">
+        
+        <!-- 1. APPOINTMENTS TAB -->
+        <div class="tab-pane fade show active" id="pills-home">
+            <div class="card glass-card border-0 shadow">
+                <div class="card-header bg-transparent py-3">
+                    <h5 class="fw-bold mb-0 text-dark">Upcoming & Past Appointments</h5>
+                </div>
+                <div class="card-body p-0">
+                    <div class="table-responsive">
+                        <table class="table table-hover align-middle mb-0">
+                            <thead class="bg-light">
+                                <tr>
+                                    <th class="ps-4">Patient</th>
+                                    <th>Date</th>
+                                    <th>Symptoms</th>
+                                    <th>Status</th>
+                                    <th class="text-end pe-4">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% if appointments %}
+                                    {% for appt in appointments %}
+                                    <tr>
+                                        <td class="ps-4 fw-bold">{{ appt.patient.name }}</td>
+                                        <td>{{ appt.date }} <br> <small class="text-muted">{{ appt.time }}</small></td>
+                                        <td><small class="text-muted">{{ appt.symptoms or 'N/A' }}</small></td>
+                                        <td>
+                                            {% if appt.status == 'Booked' %}<span class="badge bg-primary">Upcoming</span>
+                                            {% elif appt.status == 'Completed' %}<span class="badge bg-success">Completed</span>
+                                            {% else %}<span class="badge bg-danger">Cancelled</span>{% endif %}
+                                        </td>
+                                        <td class="text-end pe-4">
+                                            {% if appt.status == 'Booked' %}
+                                                <!-- BUTTON TRIGGERS MODAL (ID matches bottom) -->
+                                                <button class="btn btn-sm btn-success rounded-pill px-3" data-bs-toggle="modal" data-bs-target="#completeModal{{ appt.id }}">
+                                                    ✔ Complete Checkup
+                                                </button>
+                                                <a href="{{ url_for('cancel_appointment_doc', id=appt.id) }}" class="btn btn-sm btn-outline-danger rounded-pill px-3">✖ Cancel</a>
+                                            {% else %}
+                                                <button class="btn btn-sm btn-light border" disabled>Closed</button>
+                                            {% endif %}
+                                        </td>
+                                    </tr>
+                                    {% endfor %}
+                                {% else %}
+                                    <tr><td colspan="5" class="text-center py-4">No appointments found.</td></tr>
+                                {% endif %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 2. PATIENTS TAB -->
+        <div class="tab-pane fade" id="pills-patients">
+            <div class="row">
+                {% for pat in my_patients %}
+                <div class="col-md-6 mb-3">
+                    <div class="card glass-card border-0 p-3">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div>
+                                <h5 class="fw-bold mb-1">{{ pat.name }}</h5>
+                                <p class="mb-0 text-muted small">@{{ pat.username }} | {{ pat.phone }}</p>
+                            </div>
+                            <!-- View History Button -->
+                            <button class="btn btn-outline-primary btn-sm rounded-pill" data-bs-toggle="modal" data-bs-target="#historyModal{{ pat.id }}">
+                                📄 View History
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+
+        <!-- 3. AVAILABILITY TAB -->
+        <div class="tab-pane fade" id="pills-avail">
+            <div class="card glass-card border-0 p-4">
+                <h5 class="fw-bold mb-4">Set Availability for Next 7 Days</h5>
+                <div class="row">
+                    {% for day in next_7_days %}
+                    <div class="col-md-3 mb-3">
+                        <div class="card text-center p-3 border-0 shadow-sm {{ 'bg-success text-white' if day.status else 'bg-light text-muted' }}">
+                            <h6 class="fw-bold">{{ day.date.strftime('%a, %d %b') }}</h6>
+                            <p class="mb-2 small">{{ 'Available' if day.status else 'Unavailable' }}</p>
+                            
+                            <a href="{{ url_for('toggle_availability', date_str=day.date) }}" class="btn btn-sm btn-light rounded-pill w-100 fw-bold" style="font-size: 0.8rem;">
+                                {{ 'Mark Unavailable' if day.status else 'Mark Available' }}
+                            </a>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+<!-- ============================================ -->
+<!-- MODALS SECTION (MOVED OUTSIDE TABLE)        -->
+<!-- ============================================ -->
+
+<!-- 1. COMPLETE CHECKUP MODALS -->
+{% for appt in appointments %}
+<div class="modal fade" id="completeModal{{ appt.id }}" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content border-0 shadow-lg">
+            <div class="modal-header bg-success text-white">
+                <h5 class="modal-title fw-bold">Complete Appointment</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <form action="{{ url_for('complete_appointment', id=appt.id) }}" method="POST">
+                <div class="modal-body p-4">
+                    <p class="mb-3"><strong>Patient Name:</strong> {{ appt.patient.name }}</p>
+                    
+                    <div class="mb-3">
+                        <label class="form-label fw-bold small text-muted">DIAGNOSIS</label>
+                        <input type="text" name="diagnosis" class="form-control" placeholder="e.g. Viral Fever" required>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label class="form-label fw-bold small text-muted">TREATMENT / NOTES</label>
+                        <textarea name="treatment" class="form-control" rows="2" placeholder="e.g. IV Fluids administered. Rest advised."></textarea>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label class="form-label fw-bold small text-muted">PRESCRIPTION</label>
+                        <textarea name="prescription" class="form-control" rows="3" placeholder="e.g. Paracetamol 500mg (1-0-1) for 3 days" required></textarea>
+                    </div>
+                </div>
+                <div class="modal-footer bg-light">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                    <button type="submit" class="btn btn-success">Save & Complete</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endfor %}
+
+<!-- 2. PATIENT HISTORY MODALS -->
+{% for pat in my_patients %}
+<div class="modal fade" id="historyModal{{ pat.id }}" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-dialog-centered">
+        <div class="modal-content border-0 shadow-lg">
+            <div class="modal-header bg-primary text-white">
+                <h5 class="modal-title fw-bold">Medical History: {{ pat.name }}</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body p-0">
+                <ul class="list-group list-group-flush">
+                    {% for hist in pat.my_appointments %}
+                        {% if hist.status == 'Completed' %}
+                        <li class="list-group-item p-4">
+                            <div class="d-flex w-100 justify-content-between mb-2">
+                                <h6 class="mb-1 fw-bold text-primary">{{ hist.date }}</h6>
+                                <small class="text-muted">Dr. {{ hist.doctor.name }}</small>
+                            </div>
+                            <p class="mb-1"><strong>Diagnosis:</strong> {{ hist.diagnosis }}</p>
+                            <p class="mb-1"><strong>Treatment:</strong> {{ hist.treatment }}</p>
+                            <div class="bg-light p-2 rounded mt-2 text-danger border border-danger bg-opacity-10">
+                                <strong>Rx:</strong> {{ hist.prescription }}
+                            </div>
+                        </li>
+                        {% endif %}
+                    {% else %}
+                        <div class="text-center py-5 text-muted">No completed history available.</div>
+                    {% endfor %}
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+{% endfor %}
+
+{% endblock %}

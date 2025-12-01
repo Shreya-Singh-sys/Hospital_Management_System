@@ -1,0 +1,126 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container py-5">
+    
+    <!-- 
+       HEADER SECTION WITH BACKGROUND IMAGE BANNER
+       The style attribute dynamically sets the background image based on the department.
+    -->
+    <div class="row mb-5">
+        <div class="col-12">
+            <div class="card border-0 shadow-lg overflow-hidden position-relative text-center text-white" style="min-height: 350px; border-radius: 25px;background-color: #6e42c1dc;">
+                
+                <!-- Background Image Layer -->
+                <div style="
+                    background-image: url('{{ dept_image }}'); 
+                    background-size: cover; 
+                    background-position: center; 
+                    position: absolute; 
+                    top: 0; left: 0; 
+                    width: 100%; height: 100%; 
+                    filter: brightness(0.4);">
+                </div>
+
+                <!-- Text Content Layer (Stacked on top of image) -->
+                <div class="card-body p-5 position-relative d-flex flex-column justify-content-center align-items-center h-100">
+                    <h1 class="display-3 fw-bold">{{ dept_name }}</h1>
+                    <p class="lead opacity-90 mt-3 mb-4" style="max-width: 700px; font-weight: 300;">
+                        {{ description }}
+                    </p>
+                    <a href="{{ url_for('patient_dashboard') }}" class="btn btn-outline-light rounded-pill px-4 py-2 fw-bold backdrop-blur">
+                        ← Back to Dashboard
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Available Specialists Title (UPDATED) -->
+    <!-- Removed bg-white, added text-white (or custom color), removed shadow on icon container if needed -->
+    <div class="d-flex align-items-center mb-4 ps-2">
+        <!-- Icon container: Removed bg-white, shadow-sm. Added custom text color if needed -->
+        <div class="d-flex align-items-center justify-content-center me-3" style="width: 50px; height: 50px; font-size: 2.5rem;">
+            👨‍⚕️
+        </div>
+        <!-- Title Text: Changed color to text-white or a lighter shade for contrast -->
+        <h3 class="fw-bold mb-0 text-white-50">Available Specialists</h3>
+    </div>
+
+    <!-- Doctors List Grid -->
+    <div class="row">
+        {% if doctors %}
+            {% for doc in doctors %}
+            <div class="col-md-6 col-lg-4 mb-4">
+                <div class="card glass-card border-0 h-100 shadow-sm hover-card">
+                    <div class="card-body p-4 text-center">
+                        
+                        <!-- Doctor Icon -->
+                        <div class="bg-light rounded-circle mx-auto d-flex align-items-center justify-content-center mb-3" style="width: 80px; height: 80px; font-size: 2.5rem;">
+                            👨‍⚕️
+                        </div>
+                        
+                        <!-- Doctor Details -->
+                        <h4 class="card-title fw-bold mb-1">{{ doc.name }}</h4>
+                        <p class="text-muted mb-2">{{ doc.doctor_profile.department }}</p>
+                        
+                        <!-- Fee & Status Badges -->
+                        <div class="d-flex justify-content-center gap-2 mb-4">
+                            <span class="badge bg-success bg-opacity-10 text-success border border-success px-3 py-2 rounded-pill">
+                                Fee: ₹{{ doc.doctor_profile.fee }}
+                            </span>
+                            <span class="badge bg-primary bg-opacity-10 text-primary border border-primary px-3 py-2 rounded-pill">
+                                Available
+                            </span>
+                        </div>
+                        
+                        <!-- Action Button -->
+                        <div class="d-grid">
+                            {% if current_user.role == 'patient' %}
+                                <a href="{{ url_for('book_page', doc_id=doc.id) }}" class="btn btn-gradient shadow-sm">
+                                    Book Appointment
+                                </a>
+                            {% else %}
+                                <button disabled class="btn btn-secondary">Login as Patient to Book</button>
+                            {% endif %}
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        {% else %}
+            <!-- Empty State if no doctors found (UPDATED: Removed bg-white) -->
+            <div class="col-12">
+                <div class="text-center py-5">
+                    <div class="fs-1 mb-3" style="font-size: 3rem;">🔍</div>
+                    <h4 class="text-white">No doctors found.</h4>
+                    <p class="text-white-50">There are currently no specialists registered in this department.</p>
+                </div>
+            </div>
+        {% endif %}
+    </div>
+
+</div>
+
+<!-- CSS for Blur Effects and Hover Animations -->
+<style>
+    .backdrop-blur {
+        backdrop-filter: blur(5px);
+        background: rgba(255, 255, 255, 0.1);
+        border: 1px solid rgba(255, 255, 255, 0.3);
+        transition: all 0.3s ease;
+    }
+    .backdrop-blur:hover {
+        background: rgba(255, 255, 255, 0.2);
+        transform: translateY(-2px);
+    }
+    .hover-card {
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+    .hover-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 10px 20px rgba(0,0,0,0.1) !important;
+    }
+</style>
+{% endblock %}

@@ -1,0 +1,77 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container py-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div class="d-flex align-items-center">
+            <div class="bg-primary text-white rounded p-2 me-3 fs-4">🗓️</div>
+            <h2 class="fw-bold mb-0">All Appointments History</h2>
+        </div>
+        <a href="{{ url_for('admin_dashboard') }}" class="btn btn-outline-secondary">← Back to Dashboard</a>
+    </div>
+
+    <div class="card glass-card border-0 shadow">
+        <div class="card-body p-0">
+            <div class="table-responsive">
+                <table class="table table-hover align-middle mb-0">
+                    <thead class="bg-light">
+                        <tr>
+                            <th class="ps-4">ID</th>
+                            <th>Doctor</th>
+                            <th>Patient</th>
+                            <th>Date & Time</th>
+                            <th>Status</th>
+                            <th class="text-end pe-4">Actions</th> <!-- New Column -->
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for appt in appointments %}
+                        <tr>
+                            <td class="ps-4 text-muted">#{{ appt.id }}</td>
+                            <td class="fw-bold">{{ appt.doctor.name }}</td>
+                            <td>{{ appt.patient.name }}</td>
+                            <td>
+                                {{ appt.date }} 
+                                <span class="badge bg-light text-dark border ms-1">{{ appt.time }}</span>
+                            </td>
+                            <td>
+                                {% if appt.status == 'Booked' %}
+                                    <span class="badge bg-primary">Upcoming</span>
+                                {% elif appt.status == 'Completed' %}
+                                    <span class="badge bg-success">Completed</span>
+                                {% else %}
+                                    <span class="badge bg-danger">Cancelled</span>
+                                {% endif %}
+                            </td>
+                            <td class="text-end pe-4">
+                                <!-- CANCEL BUTTON (Only if Booked) -->
+                                {% if appt.status == 'Booked' %}
+                                <a href="{{ url_for('admin_appointment_action', id=appt.id, action='cancel') }}" 
+                                   class="btn btn-sm btn-warning text-dark me-1"
+                                   onclick="return confirm('Are you sure you want to cancel this appointment?');">
+                                    Cancel
+                                </a>
+                                {% endif %}
+
+                                <!-- DELETE BUTTON (Always Visible) -->
+                                <a href="{{ url_for('admin_appointment_action', id=appt.id, action='delete') }}" 
+                                   class="btn btn-sm btn-outline-danger"
+                                   onclick="return confirm('Permanently delete this record? This cannot be undone.');">
+                                    <i class="bi bi-trash"></i> Delete
+                                </a>
+                            </td>
+                        </tr>
+                        {% else %}
+                        <tr>
+                            <td colspan="6" class="text-center py-5 text-muted">
+                                No appointments found in the system.
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

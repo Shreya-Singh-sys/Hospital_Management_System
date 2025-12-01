@@ -1,0 +1,56 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-md-6">
+            <div class="card glass-card border-0 shadow">
+                <div class="card-header bg-primary text-white">
+                    <h4 class="mb-0">Edit User: {{ user.name }}</h4>
+                </div>
+                <div class="card-body p-4">
+                    <form method="POST">
+                        <div class="mb-3">
+                            <label class="form-label">Full Name</label>
+                            <input type="text" name="name" class="form-control" value="{{ user.name }}" required>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Email</label>
+                            <input type="email" name="email" class="form-control" value="{{ user.email or '' }}">
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Phone</label>
+                            <input type="text" name="phone" class="form-control" value="{{ user.phone or '' }}">
+                        </div>
+
+                        {% if user.role == 'doctor' %}
+                        <hr>
+                        <h6 class="text-primary fw-bold">Doctor Profile Details</h6>
+                        <div class="mb-3">
+                            <label class="form-label">Department</label>
+                            <select name="department" class="form-select">
+                                <option value="Cardiology" {% if user.doctor_profile.department == 'Cardiology' %}selected{% endif %}>Cardiology</option>
+                                <option value="Neurology" {% if user.doctor_profile.department == 'Neurology' %}selected{% endif %}>Neurology</option>
+                                <option value="Pediatrics" {% if user.doctor_profile.department == 'Pediatrics' %}selected{% endif %}>Pediatrics</option>
+                                <option value="Orthopedics" {% if user.doctor_profile.department == 'Orthopedics' %}selected{% endif %}>Orthopedics</option>
+                                <option value="Radiology" {% if user.doctor_profile.department == 'Radiology' %}selected{% endif %}>Radiology</option>
+                                <option value="Oncology" {% if user.doctor_profile.department == 'Oncology' %}selected{% endif %}>Oncology</option>
+                            </select>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Consultation Fee</label>
+                            <input type="number" name="fee" class="form-control" value="{{ user.doctor_profile.fee }}">
+                        </div>
+                        {% endif %}
+
+                        <div class="d-grid gap-2 mt-4">
+                            <button class="btn btn-success">Update Details</button>
+                            <a href="{{ url_for('admin_dashboard') }}" class="btn btn-secondary">Cancel</a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,63 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container">
+    <div class="row justify-content-center align-items-center" style="min-height: 90vh;">
+        <div class="col-11 col-sm-10 col-md-8 col-lg-5">
+            
+            <div class="card glass-card">
+                <div class="auth-header">
+                    <div class="auth-icon" style="background: linear-gradient(to right, #11998e, #38ef7d); box-shadow: 0 10px 20px rgba(56, 239, 125, 0.3);">
+                        <i class="bi bi-person-plus-fill"></i>
+                    </div>
+                    <h3 class="fw-bold mb-1">Get Started</h3>
+                    <p class="text-muted small">Create your free account now</p>
+                </div>
+                
+                <div class="card-body px-4 pb-5 pt-0">
+                    <form method="POST" action="{{ url_for('register') }}">
+                        
+                        <div class="mb-3">
+                            <label class="form-label">I am a...</label>
+                            <select class="form-select" name="role" required>
+                                <option value="patient">Patient</option>
+                                <option value="doctor">Doctor</option>
+                                <option value="admin">Admin</option>
+                            </select>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label">Full Name</label>
+                            <div class="input-group">
+                                <span class="input-group-text"><i class="bi bi-card-text"></i></span>
+                                <input type="text" name="name" class="form-control" placeholder="John Doe" required>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">Username</label>
+                                <input type="text" name="username" class="form-control" placeholder="user123" required>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">Password</label>
+                                <input type="password" name="password" class="form-control" placeholder="••••••" required>
+                            </div>
+                        </div>
+
+                        <div class="d-grid mt-2">
+                            <button class="btn btn-gradient" style="background: linear-gradient(to right, #11998e, #38ef7d);">REGISTER</button>
+                        </div>
+
+                        <div class="text-center mt-4">
+                            <p class="text-muted small mb-0">Already have an account?</p> 
+                            <a href="{{ url_for('login') }}" class="fw-bold text-decoration-none" style="color: #11998e;">Log In</a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+        </div>
+    </div>
+</div>
+{% endblock %}

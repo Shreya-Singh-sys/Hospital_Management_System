@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>HMS</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body class="bg-light">
+
+{% if current_user.is_authenticated %}
+    {% set navbar_class = 'bg-primary' %} {% if current_user.role == 'doctor' %} {% set navbar_class = 'bg-success' %} {% elif current_user.role == 'patient' %} {% set navbar_class = 'bg-purple' %} {% endif %}
+
+    <nav class="navbar navbar-dark {{ navbar_class }} p-3 mb-4">
+        <div class="container-fluid">
+            <span class="navbar-brand mb-0 h1">
+                {% if current_user.role == 'admin' %} Admin Dashboard
+                {% elif current_user.role == 'doctor' %} Doctor's Dashboard
+                {% else %} Patient's Dashboard {% endif %}
+            </span>
+            <div class="d-flex align-items-center text-white">
+                <span class="me-3">Welcome {{ current_user.name }}</span>
+                <a href="{{ url_for('logout') }}" class="btn btn-light btn-sm">Logout</a>
+            </div>
+        </div>
+    </nav>
+{% endif %}
+
+<div class="container">
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            {% for category, msg in messages %}
+                <div class="alert alert-{{ category }}">{{ msg }}</div>
+            {% endfor %}
+        {% endif %}
+    {% endwith %}
+    
+    {% block content %}{% endblock %}
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
